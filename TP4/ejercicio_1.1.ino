@@ -100,7 +100,7 @@ int moverIzquierda(int restantes, int anteriorPaso)
       anteriorPaso = 0;
     }
     salida(anteriorPaso);
-    Serial.println(anteriorPaso);
+    //Serial.println(anteriorPaso);
     delay(demora);
   }
   return anteriorPaso;
@@ -117,7 +117,7 @@ int moverDerecha(int restantes, int anteriorPaso)
       anteriorPaso = CANTPASOS - 1;
     }
     salida(anteriorPaso);
-    Serial.println(anteriorPaso);
+    //Serial.println(anteriorPaso);
     delay(demora);
   }
   return anteriorPaso;
