@@ -1,35 +1,85 @@
-// definicion de pins
-const int motorPin1 = 2;  // 28BYJ48 In1
-const int motorPin2 = 3;  // 28BYJ48 In2
-const int motorPin3 = 4; // 28BYJ48 In3
-const int motorPin4 = 5; // 28BYJ48 In4
+/*Realizar un programa que al introducir por teclado en el terminal serie un valor de ángulo en º, el motor paso a paso gire esa cantidad de grados hacia la derecha, y si ingresa un número de grados con signo negativo, gire la cantidad de grados en forma anti-horaria*/
+#define PASOS_PV 2048
+#define PIN_1 2
+#define PIN_2 3
+#define PIN_3 4
+#define PIN_4 5
+#define RPM 10
 
-// definicion variables
-int motorSpeed = 1200;  // variable para fijar la velocidad
-int stepCounter = 0;    // contador para los pasos
-int stepsPerRev = 4076; // pasos para una vuelta completa
+bool moverPasos(int pasos);
+void contarVueltas(int posicion);
 
-// tablas con la secuencia de encendido (descomentar la que necesiteis)
-// secuencia 1-fase
-const int numSteps = 4;
-const int stepsLookup[4] = { B1000, B0100, B0010, B0001 };
-
-// secuencia 2-fases
-// const int numSteps = 4;
-// const int stepsLookup[4] = { B1100, B0110, B0011, B1001 };
-
-// secuencia media fase
-//const int numSteps = 8;
-//const int stepsLookup[8] = {B1000, B1100, B0100, B0110, B0010, B0011, B0001, B1001};
+int posicion = 0, anterior = 0, vuelta = 0;
+float factorConversionGP = float(PASOS_PV) / 360.0;
+int fase = 8;
+int fase8pasos[fase] = {1000, 1100, 0100, 0110, 0010, 0011, 0001, 1001};
 
 void setup()
 {
-  // declarar pines como salida
-  pinMode(motorPin1, OUTPUT);
-  pinMode(motorPin2, OUTPUT);
-  pinMode(motorPin3, OUTPUT);
-  pinMode(motorPin4, OUTPUT);
+  Serial.begin(9600);
+
+  // Incicializamos pines
+  pinMode(PIN_1, OUTPUT);
+  pinMode(PIN_2, OUTPUT);
+  pinMode(PIN_3, OUTPUT);
+  pinMode(PIN_4, OUTPUT);
 }
+
+void loop()
+{
+
+  if (Serial.available())
+  {
+    int lectura = Serial.parseInt();
+    posicion += lectura;
+    lectura *= factorConversionGP; // Conversion de grados a pasos
+    moverPasos(lectura);
+  }
+  contarVueltas(posicion);
+}
+
+void moverPasos(int pasos)
+{
+  int pasosRestantes = abs(pasos);
+  static int ultimoPaso = 0;
+  if (pasos > 0)
+  {
+    ultimoPaso = moverDerecha(pasosRestantes, ultimoPaso);
+    return;
+  }
+  ultimoPaso = moverIzquierda(pasosRestantes, ultimoPaso);
+}
+
+void contarVueltas(int grados)
+{
+  if (grados < 0)
+  {
+    grados += 360;
+    vuelta--;
+  }
+
+  if (grados > 360)
+  {
+    grados -= 360;
+    vuelta++;
+  }
+
+  if (grados != anterior)
+  {
+    anterior = grados;
+    Serial.print("Posicion: " + String(grados) + " grados.");
+    Serial.println("\tVuelta:" + String(vuelta));
+  }
+}
+
+int moverDerecha(int restantes, int anteriorPaso);
+int moverDerecha(int restantes, int anteriorPaso);
+int moverDerecha(int restantes, int anteriorPaso){}
+
+/*
+int stepCounter = 0;    // contador para los pasos
+int stepsPerRev = 4076; // pasos para una vuelta completa
+
 
 void loop()
 {
@@ -69,3 +119,4 @@ void setOutput(int step)
   digitalWrite(motorPin3, bitRead(stepsLookup[step], 2));
   digitalWrite(motorPin4, bitRead(stepsLookup[step], 3));
 }
+*/
