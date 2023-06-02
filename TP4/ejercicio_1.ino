@@ -10,6 +10,8 @@
 
 Stepper pasitoApasito(PASOS_PV, PIN_1, PIN_2, PIN_3, PIN_4);
 
+void contarVueltas(int grados);
+
 int posicion = 0, anterior = 0, vuelta = 0;
 float factorOmega = float(PASOS_PV)/360.0;
 
@@ -23,7 +25,6 @@ void setup()
   pinMode(PIN_4, OUTPUT);
 
   pasitoApasito.setSpeed(VELOCIDAD);
-  // pasitoApasito.step(2000);
 }
 
 void loop()
@@ -35,23 +36,29 @@ void loop()
     lectura *= factorOmega; // Conversion de grados a pasos
     pasitoApasito.step(lectura);
   }
+    contarVueltas(posicion);
+}
 
-  if (posicion < 0)
+void contarVueltas(int grados)
+{
+  if (grados < 0)
   {
-    posicion += 360;
+    grados += 360;
     vuelta--;
   }
 
-  if (posicion > 360)
+  if (grados > 360)
   {
-    posicion -= 360;
+    grados -= 360;
     vuelta++;
   }
 
-  if (posicion != anterior)
+   if (grados != anterior)
   {
-    anterior = posicion;
-    Serial.println(posicion);
+    anterior = grados;
+    Serial.print("Posicion: ");
+    Serial.print(grados);
+    Serial.print(" grados.\tVuelta:");
     Serial.println(vuelta);
   }
 }
