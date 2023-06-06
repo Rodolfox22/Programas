@@ -1,13 +1,13 @@
 /*Realizar un programa que al introducir por teclado en el terminal serie un valor de ángulo en º, el motor paso a paso gire esa cantidad de grados hacia la derecha, y si ingresa un número de grados con signo negativo, gire la cantidad de grados en forma anti-horaria*/
 
 #define PASOS_PV 2048
-#define RPM 10
-#define CANTPASOS 8
+#define RPM 9
+#define CANTPASOS 4
 
-#define PIN_1 2
-#define PIN_2 3
-#define PIN_3 4
-#define PIN_4 5
+#define PIN_1 11
+#define PIN_2 12
+#define PIN_3 10
+#define PIN_4 9
 
 void moverPasos(int pasos);
 void contarVueltas(int posicion);
@@ -15,11 +15,14 @@ int moverDerecha(int restantes, int anteriorPaso);
 int moverIzquierda(int restantes, int anteriorPaso);
 void salida(int step);
 
-int posicion = 0, anterior = 0, vuelta = 0;
+int posicion = 0, anterior = 0, vuelta = 0, vueltaAnt = 0;
 float factorConversionGP = 0.0;
-int matrizPasos[CANTPASOS] = {B1000, B1100, B0100, B0110, B0010, B0011, B0001, B1001};
-// int matrizPasos[CANTPASOS] = {B1000, B0100, B0010, B0001};
+// int matrizPasos[CANTPASOS] = {B1000, B1100, B0100, B0110, B0010, B0011, B0001, B1001};
+
+int matrizPasos[CANTPASOS] = {B1000, B0100, B0010, B0001};
+
 unsigned long demora = 0;
+int rpm = RPM * 10;
 
 void setup()
 {
@@ -33,7 +36,7 @@ void setup()
 
   // Calculamos constantes
   factorConversionGP = float(PASOS_PV) / 360.0;
-  demora = PASOS_PV * 1000 / RPM / 60;
+  demora = PASOS_PV * 1000 / rpm / 60;
 }
 
 void loop()
@@ -54,21 +57,26 @@ void loop()
 // Imprimir en puerto la posicion del servo
 void contarVueltas(int grados)
 {
+  int signo = 1;
   if (grados < 0)
   {
-    grados += 360;
+    signo = -1;
+  }
+
+  grados = abs(grados);
+  vuelta = grados / 360 * signo;
+  grados %= 360;
+
+  if (signo == -1)
+  {
+    grados = int(map(grados, 1, 359, 359, 1));
     vuelta--;
   }
 
-  if (grados > 360)
-  {
-    grados -= 360;
-    vuelta++;
-  }
-
-  if (grados != anterior)
+  if (grados != anterior || vuelta != vueltaAnt)
   {
     anterior = grados;
+    vueltaAnt = vuelta;
     Serial.print("Posicion: ");
     Serial.print(grados);
     Serial.print(" grados.\tVuelta:");
@@ -100,7 +108,7 @@ int moverIzquierda(int restantes, int anteriorPaso)
       anteriorPaso = 0;
     }
     salida(anteriorPaso);
-    //Serial.println(anteriorPaso);
+    // Serial.println(anteriorPaso);
     delay(demora);
   }
   return anteriorPaso;
@@ -117,13 +125,13 @@ int moverDerecha(int restantes, int anteriorPaso)
       anteriorPaso = CANTPASOS - 1;
     }
     salida(anteriorPaso);
-    //Serial.println(anteriorPaso);
+    // Serial.println(anteriorPaso);
     delay(demora);
   }
   return anteriorPaso;
 }
 
-//Setea las GPIO
+// Setea las GPIO
 void salida(int step)
 {
   digitalWrite(PIN_1, bitRead(matrizPasos[step], 0));
