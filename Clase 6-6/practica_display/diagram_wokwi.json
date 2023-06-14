@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "author": "Emiliano Soria",
+  "editor": "wokwi",
+  "parts": [
+    { "type": "wokwi-arduino-uno", "id": "uno", "top": 59.33, "left": -4, "attrs": {} },
+    { "type": "wokwi-ky-040", "id": "encoder1", "top": 163.47, "left": -161.28, "attrs": {} },
+    {
+      "type": "wokwi-lcd1602",
+      "id": "lcd1",
+      "top": -123.13,
+      "left": 3.79,
+      "attrs": { "pins": "i2c" }
+    }
+  ],
+  "connections": [
+    [ "encoder1:GND", "uno:GND.1", "black", [ "h0" ] ],
+    [ "encoder1:VCC", "uno:5V", "red", [ "h0" ] ],
+    [ "encoder1:DT", "uno:2", "green", [ "h0" ] ],
+    [ "encoder1:CLK", "uno:4", "orange", [ "h0" ] ],
+    [ "lcd1:GND", "uno:GND.2", "black", [ "h-67.48", "v360.52", "h224.79" ] ],
+    [ "lcd1:VCC", "uno:5V", "red", [ "h-42.24", "v318.37", "h0.39", "v43.77", "h189.18" ] ],
+    [ "lcd1:SDA", "uno:A4.2", "green", [ "h-19.95", "v110.01", "h107.89" ] ],
+    [ "lcd1:SCL", "uno:A5.2", "green", [ "h-9.95", "v110.51", "h95.34", "v52.96" ] ]
+  ],
+  "dependencies": {}
+}
