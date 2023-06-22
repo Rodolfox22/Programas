@@ -19,7 +19,6 @@
             "cStandard": "${default}",
             "cppStandard": "${default}",
             "defines": [],
-            "compileCommands": "${workspaceFolder}/build/compile_commands.json"
         },
         {
             "name": "Arduino",

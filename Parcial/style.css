@@ -1,0 +1,53 @@
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.container {
+  display: flex;
+  flex-wrap: wrap;
+  max-width: 800px;
+  justify-content: center;
+}
+
+.box {
+  border: 1px solid #ccc;
+  padding: 10px;
+  margin: 10px;
+  text-align: center;
+  width: 45%; /* Ajustar el ancho de las cajas */
+  min-height: 120px; /* Ajustar la altura mínima de las cajas */
+}
+
+.task {
+  width: 100%;
+  min-height: 60px; /* Ajustar la altura mínima de las tareas */
+  border: 1px solid #ccc;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+.decision {
+  display: inline-block;
+  width: 80px;
+  height: 80px;
+  border: 1px solid #ccc;
+  margin: 10px;
+  transform: rotate(45deg);
+  padding: 20px;
+  text-align: center;
+  position: relative;
+}
+
+.texto {
+  transform: rotate(-45deg);
+}
+
+
+.decision span {
+  display: block;
+  font-size: 12px;
+  margin-top: 5px;
+}

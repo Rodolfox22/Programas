@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Diagrama de Flujo</title>
+ <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <div class="box">
+      <h2>setup()</h2>
+      <div class="task">Configurar serial</div>
+      <div class="task">Inicializar LCD</div>
+      <div class="task">Encender retroiluminación</div>
+      <div class="task">Imprimir en LCD</div>
+      <div class="task">Configurar pines</div>
+      <div class="task">Esperar 2 segundos</div>
+      <div class="task">Adjuntar interrupción a A</div>
+    </div>
+    <div class="box">
+      <h2>loop()</h2>
+      <div class="decision"><span class="texto">¿Acción detectada?</span></div>
+      <div class="task">Leer botones</div>
+      <div class="decision"><span class="texto">¿Acción realizada?</span></div>
+      <div class="task">Realizar acción</div>
+      <div class="task">Calcular vueltas</div>
+      <div class="task">Mostrar información LCD</div>
+      <div class="decision"><span class="texto">¿Vueltas alcanzadas?</span></div>
+      <div class="task">Detener motor</div>
+      <div class="task">Reiniciar variables</div>
+    </div>
+    <div class="box">
+      <h2>encoder()</h2>
+      <div class="task">Incrementar conteo</div>
+    </div>
+    <div class="box">
+      <h2>leerBotones()</h2>
+      <div class="decision"><span class="texto">¿BOT10 presionado?</span></div>
+      <div class="task">Establecer giros en 10</div>
+      <div class="task">Resetear variables</div>
+      <div class="task">Retornar verdadero</div>
+      <div class="decision"><span class="texto">¿BOT100 presionado?</span></div>
+      <div class="task">Establecer giros en 100</div>
+      <div class="task">Resetear variables</div>
+      <div class="task">Retornar verdadero</div>
+      <div class="task">Retornar falso</div>
+    </div>
+    <div class="box">
+      <h2>display()</h2>
+      <div class="task">Guardar muestra y vuelta</div>
+      <div class="task">Obtener vueltas y texto</div>
+      <div class="decision"><span class="texto">¿Muestra diferente?</span></div>
+      <div class="task">Imprimir muestra</div>
+      <div class="decision"><span class="texto">¿Vueltas diferentes?</span></div>
+      <div class="task">Borrar LCD</div>
+      <div class="task">Imprimir "Giros" y vueltas</div>
+      <div class="task">Imprimir "Tiempo" y tiempo transcurrido</div>
+      <div class="decision"><span class="texto">¿Acción diferente?</span></div>
+      <div class="task">Imprimir estado acción</div>
+    </div>
+    <div class="box">
+      <h2>resetear()</h2>
+      <div class="task">Restablecer conteo</div>
+      <div class="task">Encender motor</div>
+      <div class="task">Guardar tiempo vuelta</div>
+      <div class="task">Imprimir mensajes</div>
+    </div>
+  </div>
+</body>
+</html>
