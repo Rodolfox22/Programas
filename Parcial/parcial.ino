@@ -11,12 +11,13 @@ https://www.tinkercad.com/things/4UIilOzASQ1-copy-of-parcial-integrador-2023/edi
 
 LiquidCrystal_I2C lcd(0x27, 16, 2);
 
-volatile int conteo = 0;
-int giros = 0, vueltas = 0;
-bool accion = false;
+volatile int conteo = 0;    // Contador para el encoder
+int giros = 0, vueltas = 0; // Variables para el número de giros y vueltas
+bool accion = false;        // Bandera para indicar si se debe iniciar una acción
 
-unsigned long tiempoVuelta = 0;
+unsigned long tiempoVuelta = 0; // Tiempo de vuelta
 
+//Prototipos de las funciones
 void encoder();
 bool leerBotones();
 void display();
@@ -25,17 +26,22 @@ void resetear();
 void setup()
 {
   Serial.begin(9600);
+
+  //Configurar pantalla LCD
   lcd.init();
   lcd.backlight();
   lcd.setCursor(2, 0);
   lcd.print("Grupazo uno");
 
+  //Configurar GPIOs
   pinMode(A, INPUT);
   pinMode(BOT10, INPUT);
   pinMode(BOT100, INPUT);
   pinMode(MOTOR, OUTPUT);
 
   delay(2000);
+
+  // Configura la interrupción para el encoder
   attachInterrupt(digitalPinToInterrupt(A), encoder, RISING);
 }
 
@@ -45,62 +51,65 @@ void loop()
   {
     accion = leerBotones();
   }
-  
-  vueltas = conteo / RPV;
-  
+
+  vueltas = conteo / RPV; // Calcula el número de vueltas en base al conteo del encoder
+
   display();
 
-  // Pregunta si se llegó a la cuenta
+  // Verifica si se ha alcanzado el número de vueltas requerido
   if (vueltas >= giros && giros != 0)
   {
     Serial.println("Motor stop");
-    digitalWrite(MOTOR, LOW);
-    accion = false;
-    giros = 0;
-    while(!accion)
+    digitalWrite(MOTOR, LOW); // Detiene el motor
+    accion = false;           // Reinicia la bandera de acción
+    giros = 0;                // Reinicia el número de giros
+    while (!accion)
     {
-      accion = leerBotones();
+      accion = leerBotones(); // Espera a que se inicie una nueva acción
     }
   }
 }
 
+// Incrementa el contador del encoder
 void encoder()
 {
   conteo++;
 }
 
+// Verifica si se debe iniciar una acción
 bool leerBotones()
 {
   if (digitalRead(BOT10))
   {
-    giros = 10;
-    resetear();
+    giros = 10; // Configura el número de giros a 10
+    resetear(); // Reinicia los valores
     return true;
   }
 
   if (digitalRead(BOT100))
   {
-    giros = 100;
-    resetear();
+    giros = 100; // Configura el número de giros a 100
+    resetear();  // Reinicia los valores
     return true;
   }
 
   return false;
 }
 
+// Actualiza la pantalla LCD
 void display()
 {
   static int muestraAnterior = -1;
   static int vueltaAnterior = -1;
   static bool accionAnterior = true;
-  
+
   int vueltasActuales = vueltas;
-  String texto[2] = {"Off", "On "};
+  String texto[2] = {"Off", "On "}; // Texto para mostrar el estado de la acción
 
   if (conteo != muestraAnterior)
   {
     muestraAnterior = conteo;
-    Serial.println(conteo);
+    Serial.println(conteo); // Imprime el conteo del encoder
   }
 
   if (vueltasActuales != vueltaAnterior)
@@ -110,27 +119,30 @@ void display()
     lcd.setCursor(2, 0);
     lcd.print("Giros:");
     lcd.setCursor(10, 0);
-    lcd.print(vueltasActuales);
+    lcd.print(vueltasActuales); // Muestra el número de vueltas actual en la pantalla LCD
 
     lcd.setCursor(1, 1);
     lcd.print("Tiempo:");
     lcd.setCursor(10, 1);
-    lcd.print(millis() - tiempoVuelta);
+    lcd.print(millis() - tiempoVuelta); // Calcula y muestra el tiempo de vuelta en la pantalla LCD
+    lcd.setCursor(13, 0);
+    lcd.print(texto[accion]);
   }
 
   if (accion != accionAnterior)
   {
     lcd.setCursor(13, 0);
-    lcd.print(texto[accion]);
+    lcd.print(texto[accion]); // Muestra el estado de la acción (On/Off) en la pantalla LCD
     accionAnterior = accion;
   }
 }
 
+// Reinicia valores de control
 void resetear()
 {
-  conteo = 0;
-  digitalWrite(MOTOR, HIGH);
-  tiempoVuelta = millis();
   Serial.println("Valores a cero");
+  conteo = 0;
+  tiempoVuelta = millis();
   Serial.println("Motor on");
+  digitalWrite(MOTOR, HIGH);
 }
