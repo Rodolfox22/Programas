@@ -44,9 +44,9 @@ void loop()
 }
 
 // Devuelve si un numero es multiplo o no
-bool multiplo(int num, int multiplo)
+bool multiplo(int num, int multiploNum)
 {
-  if (num % multiplo == 0)
+  if (num % multiploNum == 0)
   {
     return 1;
   }

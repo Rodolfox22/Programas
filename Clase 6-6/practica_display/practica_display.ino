@@ -25,7 +25,13 @@ I2C --> libreria <Wire.h>
 #define A 2
 #define B 4
 
-LiquidCrystal_I2C lcd(0x27, 2,1,0,4,5,6,7);
+#define Wokwi
+
+#ifndef Wokwi
+LiquidCrystal_I2C lcd(0x27, 2, 1, 0, 4, 5, 6, 7); // Fisico
+#else
+LiquidCrystal_I2C lcd(0x27, 16, 2); // Wokwi
+#endif
 
 void encoder();
 
@@ -36,9 +42,17 @@ volatile int conteo = 50;
 void setup()
 {
   Serial.begin(9600);
-  lcd.begin(16,2);
-  lcd.setBacklightPin(3,POSITIVE);
-  lcd.setBacklight(HIGH);
+
+#ifndef Wokwi
+  lcd.begin(16, 2);                 // Fisico
+  lcd.setBacklightPin(3, POSITIVE); // Fisico
+  lcd.setBacklight(HIGH);           // Fisico*/
+
+#else
+  lcd.init();                       // Wokwi
+  lcd.backlight();                  // Wokwi
+#endif
+
   lcd.setCursor(2, 0);
   lcd.print("Grupazo este");
 
@@ -61,13 +75,18 @@ void loop()
 
     anterior = conteo;
     Serial.println(conteo);
-    lcd.setCursor(7, 1);
+    lcd.setCursor(6, 1);
     char cadena[4];
     sprintf(cadena, "%03d", conteo);
     for (int i; i < 2; i++)
     {
-      Serial.println(cadena[i]);
-      if (cadena[i] == 0)
+      // Serial.println(cadena[i]);
+      if (cadena[i] != '0')
+      {
+        break;
+      }
+      
+      else
       {
         cadena[i] = ' ';
       }

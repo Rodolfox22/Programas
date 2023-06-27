@@ -25,7 +25,7 @@ void loop()
     Serial.print("Angulo ingresado: ");
     Serial.println(beta);
     avanzarHasta(beta);
-    String resto = Serial.readString();
+    Serial.readString();
     brazo1.detach();
   }
 }
