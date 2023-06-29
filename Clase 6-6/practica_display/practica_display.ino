@@ -96,6 +96,7 @@ void loop()
   }
 }
 
+
 void encoder()
 {
   static unsigned long tiempo = 0;
