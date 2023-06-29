@@ -28,28 +28,31 @@ Profesor: Gustavo Castro*/
 // Inicializo objeto de pantalla
 LiquidCrystal_I2C lcd(0x27, 16, 2);
 
-volatile int conteo = 0;                   // Contador para el encoder
-volatile unsigned long tiempoActual = 0;   // Visualiza el tiempo que demora en dar una vuelta el motor
-int giros = 0, vueltas = 0, acumulado = 0; // Variables para el número de giros y vueltas y vueltas acumuladas
-bool accion = false, primerPaso = true;    // Bandera para indicar si se debe iniciar una acción y el primer ciclo del programa
-unsigned long tiempoVuelta = 0;            // Tiempo de vuelta
+volatile int conteo = 0, muestraAnterior = -1;                   // Contador para el encoder
+volatile unsigned long tiempoActual = 0;                         // Visualiza el tiempo que demora en dar una vuelta el motor
+int giros = 0, acumulado = 0, vueltas = 0, vueltasActuales = -1; // Variables para el número de giros y vueltas y vueltas acumuladas
+bool accion = false, primerPaso = true;                          // Bandera para indicar si se debe iniciar una acción y el primer ciclo del programa
+unsigned long tiempoVuelta = 0;                                  // Tiempo de vuelta
 
 // Prototipos de las funciones
 void encoder();
+int calcular();
 bool leerBotones();
-void display();
+void pantalla();
+void actualizarGiros();
+void actualizarVueltas();
 void resetear();
+void detenerMotor();
 
 void setup()
 {
 
   // Configurar GPIOs
-  pinMode(A, INPUT); // Canal A encoder motor
-  pinMode(BOT1, INPUT);
-  pinMode(BOT10, INPUT);
-  pinMode(MOTOR, OUTPUT);
-  digitalWrite(MOTOR, MOTOROFF);
-  delay(2000);
+  pinMode(A, INPUT);             // Canal A encoder motor
+  pinMode(BOT1, INPUT);          // Boton de una vuelta
+  pinMode(BOT10, INPUT);         // Boton de 10 vueltas
+  pinMode(MOTOR, OUTPUT);        // Motor
+  digitalWrite(MOTOR, MOTOROFF); // Inicializando motor
 
   Serial.begin(9600);
 
@@ -58,6 +61,10 @@ void setup()
   lcd.backlight();
   lcd.setCursor(2, 0);
   lcd.print("Grupazo uno");
+  delay(2000);
+
+  // Inicializa la impresion de valores
+  pantalla();
 
   // Configura la interrupción para el encoder
   attachInterrupt(digitalPinToInterrupt(A), encoder, RISING);
@@ -72,26 +79,15 @@ void loop()
   }
 
   // Calcula el número de vueltas en base al conteo del encoder
-  float calculo = float(conteo) / float(RPV);
-  vueltas = int(calculo);
+  vueltas = calcular();
 
   // Actualiza los datos en la pantalla
-  display();
+  actualizarVueltas();
 
   // Verifica si se ha alcanzado el número de vueltas requerido
-  if (vueltas >= acumulado && acumulado != 0)
-  {
-    Serial.println("Motor stop");
-    digitalWrite(MOTOR, MOTOROFF); // Detiene el motor
-    accion = false;                // Reinicia la bandera de acción
-    giros = 0;                     // Reinicia el número de giros
+  detenerMotor();
 
-    // Espera a que se inicie una nueva acción
-    while (!accion)
-    {
-      accion = leerBotones();
-    }
-  }
+  // Imprime el conteo del encoder en el puerto serie
 }
 
 // Incrementa el contador del encoder
@@ -99,6 +95,13 @@ void encoder()
 {
   conteo++;
   tiempoActual = millis() - tiempoVuelta;
+}
+
+// Calcula el número de vueltas en base al conteo del encoder
+int calcular()
+{
+  float calculo = float(conteo) / float(RPV);
+  return int(calculo);
 }
 
 // Verifica si se debe iniciar una acción
@@ -124,39 +127,46 @@ bool leerBotones()
 }
 
 // Actualiza la pantalla LCD
-void display()
+void pantalla()
 {
-  // Variables locales de control para evitar refrescos de display hasta un nuevo cambio
-  static int muestraAnterior = -1;
-  static int vueltaAnterior = -1;
-  static bool accionAnterior = true;
+  lcd.clear();
+  lcd.setCursor(2, 0);
+  lcd.print("Rev tot:");
 
-  int vueltasActuales = vueltas;
+  lcd.setCursor(0, 1);
+  lcd.print("R:");
 
-  // Imprime el conteo del encoder en el puerto serie
+  lcd.setCursor(6, 1);
+  lcd.print("T:");
+
+  lcd.setCursor(13, 1);
+  lcd.print("ms");
+
+  actualizarGiros();
+  actualizarVueltas();
+}
+
+// Acualiza datos de variables en pantalla
+void actualizarGiros()
+{
+  lcd.setCursor(2, 1);
+  lcd.print(giros); // Muestra la cantidad de giros seteada
+}
+
+// Acualiza datos de variables en pantalla
+void actualizarVueltas()
+{
   if (conteo != muestraAnterior)
   {
-    muestraAnterior = conteo;
     Serial.println(conteo);
+    muestraAnterior = conteo;
   }
 
-  if (vueltasActuales != vueltaAnterior)
+  if (vueltas != vueltasActuales)
   {
-    vueltaAnterior = vueltasActuales;
-    lcd.clear();
-    lcd.setCursor(2, 0);
-    lcd.print("Rev tot:");
+    vueltasActuales = vueltas;
     lcd.setCursor(11, 0);
-    lcd.print(vueltasActuales); // Muestra el número de vueltas actual en la pantalla LCD
-
-    lcd.setCursor(0, 1);
-    lcd.print("R:");
-
-    lcd.setCursor(2, 1);
-    lcd.print(giros); // Muestra la cantidad de giros seteada
-
-    lcd.setCursor(6, 1);
-    lcd.print("T:");
+    lcd.print(vueltas); // Muestra el número de vueltas actual en la pantalla LCD
 
     lcd.setCursor(8, 1);
     if (primerPaso)
@@ -165,9 +175,6 @@ void display()
       primerPaso = false;
     }
     lcd.print(tiempoActual); // Muestra la cantidad de tiempo transcurrido entre vueltas
-
-    lcd.setCursor(13, 1);
-    lcd.print("ms");
   }
 }
 
@@ -178,4 +185,19 @@ void resetear()
   tiempoVuelta = millis();
   Serial.println("Motor on");
   digitalWrite(MOTOR, MOTORON);
+  actualizarGiros();
+}
+
+// Detiene el motor y configura para un nuevo ciclo
+void detenerMotor()
+{
+  if (vueltas == acumulado && accion)
+  {
+    Serial.print("Motor off. ");
+    Serial.print("Acumulado: ");
+    Serial.println(acumulado);
+    digitalWrite(MOTOR, MOTOROFF); // Detiene el motor
+    accion = false;                // Reinicia la bandera de acción
+    giros = 0;                     // Reinicia el número de giros
+  }
 }
